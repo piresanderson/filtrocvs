@@ -1,0 +1,17 @@
+# Ignorar pastas de build e distribuição
+build/
+dist/
+
+# Ignorar arquivos gerados dinamicamente
+*.pyc
+*.pyo
+*.zip
+*.spec
+
+# Ignorar planilhas de uploads e processadas
+uploads/
+processed/
+
+# Ignorar arquivos temporários do sistema
+*.log
+__pycache__/
