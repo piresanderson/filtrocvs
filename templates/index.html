@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Planilhas</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Upload de Planilhas Excel</h1>
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class="messages">
+              {% for message in messages %}
+                <li>{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        
+        <form action="/" method="POST" enctype="multipart/form-data">
+            <label for="files">Selecione até 5 arquivos:</label><br>
+            <input type="file" name="files[]" multiple required><br><br>
+            <button type="submit">Enviar</button>
+        </form>
+
+        {% if processed_files %}
+            <h2>Arquivos Processados:</h2>
+            <ul>
+                {% for file in processed_files %}
+                    <li><a href="{{ url_for('download_file', filename=file.split('/')[-1]) }}">Baixar {{ file.split('/')[-1] }}</a></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</body>
+</html>
