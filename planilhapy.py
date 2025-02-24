@@ -34,27 +34,20 @@ def processar_planilha(file_path):
         coluna_nome = "Nome"
         coluna_sobrenome = "Sobrenome"
         coluna_idade = "Idade"
+        coluna_telefone = "Telefone"
+        coluna_celular = "Celular"
         coluna_salario_minimo = "Salário mínimo"
         coluna_salario_maximo = "Salário máximo"
         coluna_experiencia_profissional = "Experiência profissional"
-        coluna_telefone = "Telefone"
 
-        # Selecionar as colunas relevantes
-        df_filtered = df[[coluna_nome, coluna_sobrenome, coluna_idade, coluna_salario_minimo,
-                          coluna_salario_maximo, coluna_experiencia_profissional, coluna_telefone]]
+        # Selecionar as colunas relevantes (incluindo salário mínimo e máximo)
+        df_filtered = df[[coluna_nome, coluna_sobrenome, coluna_idade, coluna_telefone,
+                          coluna_celular, coluna_salario_minimo, coluna_salario_maximo,
+                          coluna_experiencia_profissional]]
 
         # Tratar valores ausentes e inconsistências na coluna de idade
         df_filtered[coluna_idade] = df_filtered[coluna_idade].fillna('0 Anos')
         df_filtered[coluna_idade] = df_filtered[coluna_idade].str.extract(r'(\d+)').astype(float)
-
-        # Tratar a coluna de salário mínimo (remover símbolos e converter para numérico)
-        def tratar_salario(valor):
-            try:
-                return float(str(valor).replace('R$', '').replace(',', '').strip())
-            except:
-                return None
-
-        df_filtered[coluna_salario_minimo] = df_filtered[coluna_salario_minimo].apply(tratar_salario)
 
         # Função para verificar baixa rotatividade (menos de 3 empregos listados)
         def check_baixa_rotatividade(experiencias):
@@ -65,10 +58,17 @@ def processar_planilha(file_path):
 
         # Filtrar candidatos com base nos critérios:
         filtered_candidates = df_filtered[
-            (df_filtered[coluna_idade] < 40) &  # Idade menor que 40 anos
-            (df_filtered[coluna_experiencia_profissional].str.contains('Vendedor', na=False)) &  # Experiência como vendedor
-            (df_filtered[coluna_experiencia_profissional].apply(check_baixa_rotatividade)) &  # Baixa rotatividade
-            (df_filtered[coluna_salario_minimo] <= 2500)  # Salário mínimo compatível
+            (
+                (df_filtered[coluna_idade] >= 17) &  # Idade mínima de 17 anos
+                (df_filtered[coluna_idade] <= 45) &  # Idade máxima de 45 anos
+                (
+                    (df_filtered[coluna_idade] < 21) |  # Candidatos com menos de 21 anos
+                    (
+                        (df_filtered[coluna_experiencia_profissional].str.contains('Vendedor', na=False)) &  # Experiência como vendedor
+                        (df_filtered[coluna_experiencia_profissional].apply(check_baixa_rotatividade))  # Baixa rotatividade
+                    )
+                )
+            )
         ]
 
         # Salvar os resultados em um arquivo Excel na pasta 'processed'
@@ -127,4 +127,3 @@ if __name__ == "__main__":
     
     print("Iniciando servidor com Waitress...")
     serve(app, host="0.0.0.0", port=5000)
-
